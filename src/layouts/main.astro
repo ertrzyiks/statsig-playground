@@ -1,0 +1,57 @@
+
+---
+const statsigEnv = import.meta.env.STATSIG_ENV
+const statsigKey = import.meta.env.STATSIG_KEY
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>Astro</title>
+	</head>
+	<body>
+
+  <script define:vars={{ statsigEnv, statsigKey }}>
+     window.statsigEnv = `${statsigEnv}`
+     window.statsigKey = `${statsigKey}`
+  </script>
+
+  <script>
+    import { StatsigClient } from '@statsig/js-client'
+    import { StatsigSessionReplayPlugin } from '@statsig/session-replay';
+    import { StatsigAutoCapturePlugin } from '@statsig/web-analytics';
+
+    declare global {
+      interface Window {
+        myStatsigClient: StatsigClient;
+        statsigEnv: string;
+        statsigKey: string;
+      }
+    }
+
+    const myStatsigClient = new StatsigClient(
+      window.statsigKey,
+      { userID: "user-id" },
+      {
+        plugins: [
+          new StatsigSessionReplayPlugin(),
+          new StatsigAutoCapturePlugin(),
+        ],
+        environment: { tier: `${window.statsigEnv}` }
+      }
+    );
+
+    window.myStatsigClient = myStatsigClient
+
+    await myStatsigClient.initializeAsync();
+
+  </script>
+
+  <slot/>
+
+	</body>
+</html>
+

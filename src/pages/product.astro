@@ -1,0 +1,33 @@
+---
+import MainLayout from '../layouts/main.astro';
+---
+
+<MainLayout>
+  <h1>Product</h1>
+
+  <a href="/basket" data-add-to-basket>Add to basket</a>
+</MainLayout>
+
+<script>
+  const experiment = window.myStatsigClient.getExperiment("add_to_basket_button_color");
+  const color = experiment.get('color', 'blue')
+
+  const button = document.querySelector('[data-add-to-basket]') as HTMLAnchorElement;
+
+  if (color === 'green') {
+    button.style.color = 'green';
+  }
+
+  button.addEventListener('click',() => {
+    const myEvent = {
+      eventName: 'add_to_cart',
+      value: 'SKU_12345',
+      metadata: {
+        price: '9.99',
+        item_name: 'diet_coke_48_pack',
+      },
+    };
+
+    window.myStatsigClient.logEvent(myEvent);
+  });
+</script>
